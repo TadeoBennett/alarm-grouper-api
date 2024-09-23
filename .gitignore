@@ -1,0 +1,12 @@
+venv
+.venv
+.idea
+.env
+env.py
+*/__pycache__/*
+__pycache__/
+models/__pycache__
+resources/__pycache__
+validators/__pycache__
+data_loaders/__pycache__
+Dockerfile
