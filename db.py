@@ -16,6 +16,7 @@ db = SQLAlchemy()
 
 
 def get_sql_alchemy_db_connection():
+    print("Connecting to the database...: ", PORTAL_CONFIG_STRING)
     return PORTAL_CONFIG_STRING
 
 
@@ -35,4 +36,4 @@ def check_connection():
         print(f"Error connecting to the database: {e}")
     finally:
         # No need to explicitly close the connection; SQLAlchemy manages that
-        print("Connection check completed.")
+        print("Connection check completed")

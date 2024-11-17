@@ -8,15 +8,13 @@ from flask_smorest import Api
 # from flask_swagger_ui import get_swaggerui_blueprint
 from datetime import timedelta
 from werkzeug.exceptions import HTTPException # for custom exceptions #
-
 import os
 from db import db, check_connection
-from env import PORTAL_CONFIG_STRING
+from env import PORTAL_CONFIG_STRING, JWT_SECRET_K
 #from models import UserModel # for testing the database connection
-from resources import User
-from resources import Alarm
-from resources import UserCategory
-
+from models.user import UserModel
+#import the resources
+from resources import GroupBlp, CategoryBlp, AlarmBlp, SoundBlp, UserBlp
 
 app = Flask(__name__)
 CORS(app)
@@ -28,9 +26,9 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", PORTAL_CONFIG_STRING)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ###------------JWT CONFIGS-------------###
-    JWT_SECRET_KEY = "super-secret"  # JWT_SECRET_KEY = str(secrets.SystemRandom().getrandbits(128))
+    JWT_SECRET_KEY =  JWT_SECRET_K
     JWT_TOKEN_LOCATION = ['headers']
-    JWT_ACCESS_TOKEN_EXPIRES =  timedelta(hours=20)
+    # JWT_ACCESS_TOKEN_EXPIRES =  timedelta(hours=20)
     ###------------SWAGGER CONFIGS-------------###
     API_TITLE = "Alarm Grouper API"
     API_VERSION = "v1"
@@ -86,11 +84,11 @@ def handle_root_exception(error):
 
 
 ### --------------REGISTER ENDPOINTS------------------- ###
-api.register_blueprint(User, url_prefix='/api/users')
-
-api.register_blueprint(Alarm, url_prefix='/api/alarms')
-
-api.register_blueprint(UserCategory, url_prefix='/api/categories')
+api.register_blueprint(GroupBlp, url_prefix='/api/groups')
+api.register_blueprint(CategoryBlp, url_prefix='/api/categories')
+api.register_blueprint(AlarmBlp, url_prefix='/api/alarms')
+api.register_blueprint(SoundBlp, url_prefix='/api/sounds')
+api.register_blueprint(UserBlp, url_prefix='/api/account/users')
 ### --------------REGISTER ENDPOINTS END------------------- ###
 
 

@@ -1,3 +1,5 @@
-from resources.user import blp as User
-from resources.alarm import blp as Alarm
-from resources.user_category import blp as UserCategory
+from resources.user import blp as UserBlp
+from resources.alarm import blp as AlarmBlp
+from resources.category import blp as CategoryBlp
+from resources.group import blp as GroupBlp
+from resources.sound import blp as SoundBlp

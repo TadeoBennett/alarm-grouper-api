@@ -1,3 +1,5 @@
 from models.user import UserModel
-from models.user_category import UserCategoryModel
+from models.category import CategoryModel
 from models.alarm import AlarmModel
+from models.group import GroupModel
+from models.sound import SoundModel

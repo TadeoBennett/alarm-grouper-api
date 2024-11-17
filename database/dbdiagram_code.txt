@@ -1,0 +1,47 @@
+
+Table users{
+  id int [pk, increment]
+  username varchar(30) [not null, unique]
+  email varchar(70) [not null, unique]
+  password varchar(256) [not null]
+  created_at timestamp [default: `NOW()`]
+}
+
+Table alarms{
+  id int [pk, increment]
+  alarm_creator_id int [ref: > users.id]
+  category_id int [ref: > categories.id]
+  name varchar(30) [not null]
+  description text [null]
+  ringTime time [null, default: null]
+  ringDate date [null, default: null]
+  repeat tinyint [null, default: 0]
+  sound_id int [ref: > sounds.id]
+  active tinyint [default: 0]
+  created_at timestamp [default: `NOW()`]
+}
+
+Table groups{
+  id int [pk, increment]
+  group_creator_id int [ref: > users.id]
+  name varchar(30) [not null]
+  description text [null]
+  created_at timestamp [default: `NOW()`]
+}
+
+Table categories{
+  id int [pk, increment]
+  category_creator_id int [ref: > users.id]
+  group_id int [ref: > groups.id]
+  name varchar(30) [not null]
+  description text [null]
+  created_at timestamp [default: `NOW()`]
+}
+
+Table sounds{
+  id int [pk, increment]
+  name varchar(20) [not null]
+  file varchar(50) [not null]
+  description varchar(100) [null]
+  created_at timestamp [default: `NOW()`]
+}

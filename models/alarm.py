@@ -1,80 +1,82 @@
 from db import db
 from datetime import datetime
+from sqlalchemy import Time, Date
+
 
 
 class AlarmModel(db.Model):
     __tablename__ = "alarms"
 
     id = db.Column(db.Integer, primary_key=True)
-    creator_user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    category_id = db.Column(db.Integer, db.ForeignKey("user_categories.id"), nullable=False)
+    alarm_creator_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=False)
     name = db.Column(db.String(50), nullable=False)
-    description = db.Column(db.String(100), nullable=False)
-    color = db.Column(db.String(7), nullable=False)
-    ringTime = db.Column(db.String(50), nullable=False)
-    ringDate = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    ringTime = db.Column(Time, nullable=True)
+    ringDate = db.Column(Date, nullable=True)
     repeat = db.Column(db.Boolean, nullable=False)
+    sound_id = db.Column(db.Integer, db.ForeignKey("sounds.id"), nullable=False)
     active = db.Column(db.Boolean, nullable=False)
-    created_at = db.Column(db.String(50), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False)
+    
+    category = db.relationship("CategoryModel", backref="alarms")
+    alarm_creator = db.relationship("UserModel", backref="alarms")
+    sound = db.relationship("SoundModel", backref="alarms")
+    
 
-    def __init__(self, name, description):
+    def __init__(self, alarm_creator_id, category_id, name, description, ringTime, ringDate, repeat, sound_id, active, created_at):
+        self.alarm_creator_id = alarm_creator_id
+        self.category_id = category_id
         self.name = name
         self.description = description
-        self.created_at = str(datetime.now())
+        self.ringTime = ringTime
+        self.ringDate = ringDate
+        self.repeat = repeat
+        self.sound_id = sound_id
+        self.active = active
+        self.created_at = created_at
 
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()
-
-    def delete_from_db(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    def update_db(self, name, description, color, ring_time, ring_date, repeat, active):
-        self.name = name
-        self.description = description
-        self.color = color
-        self.ringTime = ring_time
-        self.ringDate = ring_date
-        self.repeat = repeat
-        self.active = active
-        db.session.commit()
-
-    @classmethod
-    def find_by_userid_and_name(cls, user_id, name):
-        return cls.query.filter_by(creator_user_id=user_id, name=name).first()
-
-    @classmethod
-    def find_by_id(cls, _id):
-        return cls.query.filter_by(id=_id).first()
+        print("Alarm created in database for user id: ", self.alarm_creator_id)
 
     def json(self):
         return {
             "id": self.id,
-            "creator_user_id": self.creator_user_id,
+            "alarm_creator_id": self.alarm_creator_id,
             "category_id": self.category_id,
             "name": self.name,
             "description": self.description,
-            "color": self.color,
-            "ring_time": self.ringTime,
-            "ring_date": self.ringDate,
+            "ringTime": self.ringTime.strftime('%H:%M'),
+            "ringDate": self.ringDate.strftime('%Y-%m-%d'),
             "repeat": self.repeat,
             "active": self.active,
+            "sound_id": self.sound_id,
             "created_at": self.created_at
         }
-
+        
     @classmethod
-    def get_all(cls):
-        return cls.query.all()
-
+    def get_alarm_by_id(cls, _id):
+        return cls.query.filter_by(id=_id).first()
+    
     @classmethod
-    def find_active_alarms(cls):
-        return cls.query.filter_by(active=True)
-
+    def get_alarms_by_user_id(cls, alarm_creator_id):
+        return cls.query.filter_by(alarm_creator_id=alarm_creator_id).all()
+    
     @classmethod
-    def find_repeat_alarms(cls):
-        return cls.query.filter_by(repeat=True)
-
+    def get_alarm_by_id_and_user_id(cls, alarm_id, alarm_creator_id):
+        return cls.query.filter_by(alarm_creator_id=alarm_creator_id, id=alarm_id).first()
+    
     @classmethod
-    def find_alarms_by_category_id(cls, category_id):
-        return cls.query.filter_by(category_id=category_id)
+    def update_alarm_by_id_and_user_id(cls, alarm_creator_id, alarm_id, name, description):
+        alarm = cls.query.filter_by(alarm_creator_id=alarm_creator_id, id=alarm_id).first()
+        alarm.name = name
+        alarm.description = description
+        db.session.commit()
+        
+    @classmethod
+    def delete_alarm_by_id_and_user_id(cls, alarm_creator_id, alarm_id):
+        alarm = cls.query.filter_by(alarm_creator_id=alarm_creator_id, id=alarm_id).first()
+        db.session.delete(alarm)
+        db.session.commit()
